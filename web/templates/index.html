@@ -1,0 +1,55 @@
+{% extends 'base/index.html' %}
+
+{% block title %}WHOIS Explorer - AS-MLTFR{% endblock %}
+
+{% block main %}
+        <h1 class="page-title">DN42 WHOIS Explorer</h1>
+        <p class="lead">Welcome to DN42 WHOIS explorer run by <span class="netname">AS-MLTFR</span>!</p>
+
+        <form id="whoisForm" class="search-form">
+            <input type="text" id="queryInput" class="search-input" placeholder="Enter an IP address, prefix, ASN or domain" required>
+            <button type="submit" class="search-btn">Search</button>
+        </form>
+
+        <div id="result-div" class="result-box d-none">
+            <pre id="result"></pre>
+        </div>
+
+        <div class="info-card">
+            <h2>How to use the web UI?</h2>
+            <p>It works like our WHOIS server. You can enter an IP, a prefix, an ASN or a domain, and it will answer you with real-time registry information from the DN42 network.</p>
+        </div>
+{% endblock %}
+
+{% block js %}
+        const WHOIS_PROXY = "http://whois.asmltfr.dn42/api";
+
+        // WHOIS query function
+        async function performWhoisQuery(query) {
+            const box = document.getElementById("result-div");
+            const result = document.getElementById("result");
+            box.classList.remove("d-none");
+
+            if (!query) {
+                result.textContent = "Please enter an IP, prefix, ASN or domain.";
+                return;
+            }
+
+            result.textContent = "Loading...";
+
+            try {
+                const res = await fetch(`${WHOIS_PROXY}/${encodeURIComponent(query)}`);
+                const data = await res.text();
+                result.textContent = data || "No results found.";
+            } catch (err) {
+                result.textContent = "Error connecting to WHOIS server.\n" + err.message;
+            }
+        }
+
+        // Form submission
+        document.getElementById("whoisForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const query = document.getElementById("queryInput").value.trim();
+            performWhoisQuery(query);
+        });
+{% endblock %}

@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title class="titlebrand">{% block title %}WHOIS Explorer{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a26;
+            --accent: #a855f7;
+            --accent-secondary: #6366f1;
+            --accent-glow: rgba(168, 85, 247, 0.4);
+            --text-primary: #e8e8f0;
+            --text-secondary: #a0a0b8;
+            --border: rgba(168, 85, 247, 0.2);
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            z-index: 1000;
+        }
+        
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        .nav-links a.active {
+            color: var(--accent);
+        }
+        
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        
+        /* Container and Typography */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 8rem 2rem 4rem;
+        }
+        
+        .page-title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+        
+        .lead {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .netname {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .hostname {
+            color: var(--success);
+            font-weight: 600;
+        }
+        
+        /* Search Form */
+        .search-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+        }
+        
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .search-btn {
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
+            border: none;
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--accent-glow);
+        }
+        
+        /* Result Box */
+        .result-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+            min-height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .result-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+        }
+        
+        .result-box pre {
+            color: var(--success);
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        /* Cards */
+        .info-card,
+        .docs-card {
+            background: var(--bg-card);
+            padding: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            margin: 3rem 0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .docs-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--accent), var(--accent-secondary));
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .info-card:hover,
+        .docs-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 15px 40px rgba(168, 85, 247, 0.25);
+        }
+        
+        .docs-card:hover::before {
+            transform: scaleY(1);
+        }
+        
+        .info-card h2,
+        .docs-card h2 {
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        
+        .info-card p,
+        .docs-card p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Code Blocks */
+        .code-block {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            position: relative;
+            overflow-x: auto;
+        }
+        
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+        }
+        
+        .code-block pre {
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            margin: 0;
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+        
+        .code-block code {
+            color: var(--text-primary);
+        }
+        
+        /* Query Examples */
+        .example-query {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .port {
+            color: var(--warning);
+            font-weight: 700;
+        }
+        
+        .query-examples {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .example-item {
+            padding: 0.5rem 1rem;
+            background: rgba(168, 85, 247, 0.1);
+            border-left: 3px solid var(--accent);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* API Endpoints */
+        .endpoint {
+            display: block;
+            margin: 0.5rem 0;
+            padding: 0.3rem 0;
+        }
+        
+        .method {
+            color: var(--success);
+            font-weight: 700;
+            margin-right: 1rem;
+        }
+        
+        .path {
+            color: var(--accent);
+        }
+        
+        .comment {
+            color: var(--text-secondary);
+            margin-left: 1rem;
+        }
+        
+        /* Info Box */
+        .info-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .info-box h3 {
+            color: var(--success);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .info-box ul {
+            list-style: none;
+            padding: 0;
+            color: var(--text-secondary);
+        }
+        
+        .info-box li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .info-box li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            margin-top: 4rem;
+        }
+        
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Utility Classes */
+        .d-none {
+            display: none;
+        }
+        
+        /* Tablet styles */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 7rem 1.5rem 3rem;
+            }
+        
+            .page-title {
+                font-size: 2.5rem;
+            }
+        
+            .lead {
+                font-size: 1.1rem;
+            }
+        
+            .nav-links {
+                gap: 1.5rem;
+            }
+        
+            .docs-card,
+            .info-card {
+                padding: 2rem;
+            }
+        }
+        
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+            }
+        
+            .nav-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        
+            .logo {
+                font-size: 1.3rem;
+            }
+        
+            .menu-toggle {
+                display: block;
+            }
+        
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+        
+            .nav-links.show {
+                display: flex;
+            }
+        
+            .nav-content {
+                align-items: stretch;
+            }
+        
+            .container {
+                padding: 6rem 1rem 2rem;
+            }
+        
+            .page-title {
+                font-size: 2rem;
+            }
+        
+            .lead {
+                font-size: 1rem;
+                margin-bottom: 2rem;
+            }
+        
+            .search-form {
+                flex-direction: column;
+            }
+        
+            .search-input {
+                padding: 0.9rem 1.2rem;
+                font-size: 0.95rem;
+            }
+        
+            .search-btn {
+                padding: 0.9rem 2rem;
+                width: 100%;
+            }
+        
+            .result-box {
+                padding: 1.5rem;
+            }
+        
+            .result-box pre {
+                font-size: 0.85rem;
+            }
+        
+            .info-card,
+            .docs-card {
+                padding: 1.5rem;
+                margin: 2rem 0;
+            }
+        
+            .info-card h2,
+            .docs-card h2 {
+                font-size: 1.5rem;
+            }
+        
+            .info-card p,
+            .docs-card p {
+                font-size: 0.95rem;
+            }
+        
+            .code-block {
+                padding: 1rem;
+            }
+        
+            .code-block pre {
+                font-size: 0.8rem;
+            }
+        
+            .example-item {
+                font-size: 0.85rem;
+                padding: 0.6rem 0.8rem;
+            }
+        
+            .endpoint {
+                display: block;
+                margin: 0.8rem 0;
+            }
+        
+            .comment {
+                display: block;
+                margin-left: 0;
+                margin-top: 0.2rem;
+            }
+        
+            .info-box {
+                padding: 1.2rem;
+            }
+        
+            .info-box h3 {
+                font-size: 1.1rem;
+            }
+        
+            footer {
+                padding: 2rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Small mobile styles */
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 1.6rem;
+            }
+        
+            .lead {
+                font-size: 0.9rem;
+            }
+        
+            .logo {
+                font-size: 1.1rem;
+            }
+        
+            .nav-links a {
+                font-size: 0.9rem;
+            }
+        
+            .result-box pre,
+            .code-block pre {
+                font-size: 0.75rem;
+            }
+        
+            .docs-card h2 {
+                font-size: 1.3rem;
+            }
+        
+            .example-item {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <a href="/" class="logo titlebrand">WHOIS Explorer by AS-MLTFR Network</a>
+                <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/"{% if page == "index" %} class="active"{% endif %}>Home</a></li>
+                <li><a href="/docs/api"{% if page == "api" %} class="active"{% endif %}>API Documentation</a></li>
+                <li><a href="/docs/whois"{% if page == "whois" %} class="active"{% endif %}>WHOIS Documentation</a></li>
+                <li><a href="http://git.asmltfr.dn42/as-mltfr/whois">Git repo</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% block main %}
+        {% endblock %}
+    </div>
+
+    <footer>
+        <p><i>All data served raw and live.</i></p>
+        <p>Made by <a href="http://asmltfr.dn42">ASMLTFR</a> 🛰️ with ❤️</p>
+        <p><span class="netname">AS-MLTFR</span> © 2025 - All rights reserved.</p>
+    </footer>
+
+    <script>
+        {% block js %}
+        {% endblock %}
+
+        // Toggle mobile menu
+        function toggleMenu() {
+            const navLinks = document.getElementById("navLinks");
+            navLinks.classList.toggle("show");
+        }
+
+        // Close mobile menu when clicking a link
+        document.querySelectorAll(".nav-links a").forEach(link => {
+            link.addEventListener("click", () => {
+                if (window.innerWidth <= 768) {
+                    document.getElementById("navLinks").classList.remove("show");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

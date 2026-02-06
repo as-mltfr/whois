@@ -1,3 +1,4 @@
 web/.env
 server/.env
 web/__pycache__/*
+web/routes/__pycache__/*

@@ -1,0 +1,62 @@
+{% extends 'base/index.html' %}
+
+{% block title %}WHOIS - WHOIS Explorer AS-MLTFR{% endblock %}
+
+{% block main %}
+        <h1 class="page-title">DN42 WHOIS Explorer - WHOIS</h1>
+        <p class="lead">WHOIS Socket Documentation</p>
+
+        <div class="docs-card">
+            <h2>How to use the WHOIS server?</h2>
+            <p>Connect to our WHOIS server using any standard WHOIS client or netcat. The server listens on port 43 and accepts queries for DN42 registry objects.</p>
+            
+            <div class="code-block">
+                <pre><code><span class="example-query"><span class="hostname" id="hostname">whois.example.dn42</span><span class="port">:43</span></span></code></pre>
+            </div>
+
+            <div class="info-box">
+                <h3>Supported Query Types</h3>
+                <ul>
+                    <li>IPv6 prefixes (e.g., fd8b:dc6c:8653::/48)</li>
+                    <li>IPv4 prefixes (e.g., 172.20.18.240/28)</li>
+                    <li>Domain names (e.g., asmltfr.dn42)</li>
+                    <li>Subdomains (e.g., subdomain.asmltfr.dn42)</li>
+                    <li>AS numbers (e.g., as4242422412)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="docs-card">
+            <h2>Query Examples</h2>
+            <p>Here are some examples of valid queries you can send to the WHOIS server:</p>
+            
+            <div class="query-examples">
+                <div class="example-item">fd8b:dc6c:8653::/48</div>
+                <div class="example-item">172.20.18.240/28</div>
+                <div class="example-item">asmltfr.dn42</div>
+                <div class="example-item">subdomain.asmltfr.dn42</div>
+                <div class="example-item">as4242422412</div>
+            </div>
+        </div>
+
+        <div class="docs-card">
+            <h2>Command Line Usage</h2>
+            <p>You can query the WHOIS server directly from your terminal:</p>
+            
+            <div class="code-block">
+                <pre><code># Using whois command
+whois -h <span class="hostname" id="hostname2">whois.example.dn42</span> fd8b:dc6c:8653::/48
+
+# Using netcat
+echo "fd8b:dc6c:8653::/48" | nc <span class="hostname" id="hostname3">whois.example.dn42</span> 43
+
+# Using telnet
+telnet <span class="hostname" id="hostname4">whois.example.dn42</span> 43</code></pre>
+            </div>
+        </div>
+
+        <div class="docs-card">
+            <h2>Response Format</h2>
+            <p>The WHOIS server returns standard WHOIS-formatted data directly from the DN42 registry. All data is served raw and live with no caching delays.</p>
+        </div>
+{% endblock %}

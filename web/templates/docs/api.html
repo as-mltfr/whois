@@ -1,0 +1,42 @@
+{% extends 'base/index.html' %}
+
+{% block title %}API - WHOIS Explrer AS-MLTFR{% endblock %}
+
+{% block main %}
+        <h1 class="page-title">DN42 WHOIS Explorer - API</h1>
+        <p class="lead">WHOIS API Documentation</p>
+
+        <div class="docs-card">
+            <h2>How to use the API?</h2>
+            <p>Access DN42 registry data programmatically with simple HTTP requests:</p>
+            
+            <div class="code-block">
+                <pre><code><span class="endpoint"><span class="method">GET</span> <span class="path">http://<span class="hostname">whois.asmltfr.dn42</span>/api/{type}/{object}</span></span>
+
+<span class="endpoint"><span class="method">GET</span> <span class="path">http://<span class="hostname">whois.asmltfr.dn42</span>/api/inet6num/fd8b:dc6c:8653::/48</span> <span class="comment"># Inet6num object</span></span>
+<span class="endpoint"><span class="method">GET</span> <span class="path">http://<span class="hostname">whois.asmltfr.dn42</span>/api/route6/fd8b:dc6c:8653::/48</span> <span class="comment"># Route6 object</span></span>
+<span class="endpoint"><span class="method">GET</span> <span class="path">http://<span class="hostname">whois.asmltfr.dn42</span>/api/inetnum/172.20.18.240/28</span> <span class="comment"># Inetnum object</span></span>
+<span class="endpoint"><span class="method">GET</span> <span class="path">http://<span class="hostname">whois.asmltfr.dn42</span>/api/route/172.20.18.240/28</span> <span class="comment"># Route object</span></span>
+<span class="endpoint"><span class="method">GET</span> <span class="path">http://<span class="hostname">whois.asmltfr.dn42</span>/api/domain/asmltfr.dn42</span> <span class="comment"># Domain objects</span></span>
+<span class="endpoint"><span class="method">GET</span> <span class="path">http://<span class="hostname">whois.asmltfr.dn42</span>/api/aut-num/4242422412</span> <span class="comment"># Aut-Num objects</span></span></code></pre>
+            </div>
+        </div>
+
+        <div class="docs-card">
+            <h2>Supported Object Types</h2>
+            <p>The API supports the following DN42 registry object types:</p>
+            <ul style="color: var(--text-secondary); line-height: 2; margin-left: 1.5rem;">
+                <li><strong style="color: var(--accent);">inet6num</strong> - IPv6 address allocations</li>
+                <li><strong style="color: var(--accent);">route6</strong> - IPv6 routing information</li>
+                <li><strong style="color: var(--accent);">inetnum</strong> - IPv4 address allocations</li>
+                <li><strong style="color: var(--accent);">route</strong> - IPv4 routing information</li>
+                <li><strong style="color: var(--accent);">domain</strong> - DNS domain information</li>
+                <li><strong style="color: var(--accent);">aut-num</strong> - Autonomous System information</li>
+            </ul>
+        </div>
+
+        <div class="docs-card">
+            <h2>Response Format</h2>
+            <p>All API responses return plain text data directly from the DN42 registry in standard WHOIS format. The data is served raw and live with no caching delays.</p>
+        </div>
+{% endblock %}
